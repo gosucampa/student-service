@@ -1,32 +1,64 @@
+
+const students = [];
+
 export const addStudent = async student => {
-  //TODO: Implement addStudent, return true if student was added successfully and
-  // false otherwise
+  const index = students.findIndex(s => s.id === +student.id);
+  if (index !== -1) {
+    return false;
+  }
+  students.push({
+    ...student,
+    scores: student.scores || {}
+  });
+  return true;
 };
 
 export const findStudent = async id => {
-  //TODO: Implement findStudents
+  const student = students.find(s => s.id === +id);
+  return student || null
 };
 
 export const deleteStudent = async id => {
-  //TODO: Implement deleteStudents
+  const index = students.findIndex(s => s.id === +id);
+  if (index === -1) {
+    return null;
+  }
+  const [deleted] = students.splice(index, 1);
+  return deleted;
 };
 
 export const updateStudent = async (id, data) => {
-  //TODO: Implement updateStudents
+  const student = students.find(s => s.id === +id);
+  if (!student) {
+    return null;
+  }
+  if (data.name) {
+    student.name = data.name;
+  }
+  return student;
 };
 
 export const addScore = async (id,exam, score) => {
-  //TODO: Implement addScore
+  const student = students.find(s => s.id === +id);
+  if(!student) {
+    return false;
+  }
+  if(!student.scores) {
+    student.scores = {};
+  }
+  student.scores[exam] = +score;
+  return true;
 };
 
 export const findStudentsByName = async name => {
-  //TODO: Implement findStudentsByName
+  return students.filter(s => s.name?.toLowerCase() === (name.toLowerCase()));
 };
 
 export const countStudentsByName = async name => {
-  //TODO: Implement countStudentsByName
+  const names = Array.isArray(name) ? name : [name];
+  return students.filter(s => names.includes(s.name)).length;
 };
 
 export const findStudentsByMinScore = async (exam, minScore) => {
-  //TODO: Implement findStudentsByMinScore
+  return students.filter(s => s.scores && s.scores[exam] >= +minScore);
 };
