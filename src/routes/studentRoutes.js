@@ -15,12 +15,12 @@ const router = Router();
 router.post('/student', addStudent);
 router.get('/student/:id', findStudent);
 router.delete('/student/:id', deleteStudent);
-router.put('/student/:id', updateStudent);
-router.put('/student/:id/score', addScore);
+router.patch('/student/:id', updateStudent);
+router.patch('/score/student/:id', addScore);
 
-router.get('/student/name/:name', findStudentsByName);
-router.post('/student/name/:name/count', countStudentsByName);
-router.get('/student/exam/:exam/minscore/:minScore', findStudentsByMinScore);
+router.get('/students/name/:name', findStudentsByName);
+router.get('/quantity/students', countStudentsByName);
+router.get('/students/exam/:exam/minscore/:minScore', findStudentsByMinScore);
 
 
 export default router;

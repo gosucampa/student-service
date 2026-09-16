@@ -35,6 +35,9 @@ export const updateStudent = async (id, data) => {
   if (data.name) {
     student.name = data.name;
   }
+  if (data.password) {
+    student.password = data.password;
+  }
   return student;
 };
 
