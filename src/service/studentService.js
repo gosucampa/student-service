@@ -1,9 +1,11 @@
 import * as repo from "../repository/studentRepository.js";
 
 function renameId(student) {
-  if (!student) return student;
-  const {_id, ...rest} = student;
-  return {id: _id, ...rest}
+  if (student) {
+    const {_id, ...rest} = student;
+    student = {id: _id, ...rest};
+  }
+  return student;
 }
 
 export const addStudent = async student => repo.createStudent(student);
