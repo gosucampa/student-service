@@ -1,45 +1,30 @@
-import Student from '../model/student.js';
+import Student from "../model/student.js";
 
 const students = new Map();
+let collection;
+export const init = db => collection = db.collection('college');
 
-export const createStudent = ({id, name, password}) => {
- if(students.has(id)) {
-   return false;
- }
- students.set(id, new Student(id, name, password));
- return true;
-}
-
-export const findStudentById = id => students.get(id);
-
-export const deleteStudent = id => {
-  const student = students.get(id);
-  students.delete(id);
-  return student;
-}
-
-export const updateStudent = (id, {name, password}) => {
-  const student = students.get(id);
-  if(student) {
-    if(name) student.name = name;
-    if(password) student.password = password;
+export const createStudent = async ({id, name, password}) => {
+  const existingStudent = await collection.findOne({_id: id});
+  if (existingStudent) {
+    return false;
   }
-  return student;
-}
-
-export const addScore = (id, exam, score) => {
-  const student = students.get(id);
-  if(!student) return false;
-  student.scores = student.scores || {};
-  student.scores[exam] = score;
+  await collection.insertOne({_id: id, name, password, scores: {}});
   return true;
 }
 
-export const findStudentsByName = name =>
-  [...students.values()].filter(s => s.name === name);
+export const findStudentById = async id => await collection.findOne({_id: id}, {projection: {password: 0}});
 
-export const getAllStudents = () => [...students.values()];
+export const deleteStudent = async id =>  collection.findOneAndDelete({_id: id}, {projection: {password: 0}});
 
-export const findStudentsByMinScore = (exam, minScore) =>
-  [...students.values()].filter(s =>s.scores && s.scores[exam] >= minScore);
+export const updateStudent = async (id, data) => await collection.findOneAndUpdate({_id: id}, {$set: data}, {projection: {scores: 0}, returnDocument: 'after'});
 
+export const findStudentsByName = async name => await collection.find({name: {$regex: `^${name}$`, $options: 'i'}}, {projection: {password: 0}}).toArray();
+
+export const countStudentsByNames = async names => {
+  return await collection.countDocuments({name: {$in: names}},
+    {collation: {locale: 'en', strength: 2}}
+  );
+}
+
+export const findStudentsByMinScore = async (exam, minScore) => await collection.find({[`scores.${exam}`]: {$gte: minScore}}, {projection: {password: 0}}).toArray();
