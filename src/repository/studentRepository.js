@@ -1,6 +1,4 @@
-import Student from "../model/student.js";
 
-const students = new Map();
 let collection;
 export const init = db => collection = db.collection('college')
 
