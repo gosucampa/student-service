@@ -1,4 +1,4 @@
-import {Schema, model} from "mongoose";
+import { Schema, model } from 'mongoose';
 
 const studentSchema = new Schema({
   _id: {type: Number, required: true},
@@ -16,11 +16,16 @@ const studentSchema = new Schema({
     transform: (doc, ret) => {
       ret.id = doc._id;
       delete ret._id;
+      delete ret.password;
+    }
+  },
+  toObject: {
+    transform: (doc, ret) => {
+      ret.id = doc._id;
+      delete ret._id;
     }
   }
 })
 
-
 const Student = model('Student', studentSchema, 'college');
 export default Student;
-
