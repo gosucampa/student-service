@@ -61,81 +61,79 @@ describe('Student Service', () => {
   })
   it('findStudent converts id to a number and returns the student', async () => {
     // Arrange
-    const student = {id: 2, name: 'John'};
+    const student = {
+      id: 2,
+      name: 'John',
+      password: 'secret'
+    };
     mockRepo.findStudentById.mockResolvedValue(student);
-    // Act
-    const result = await studentService.findStudent('2');
-    // Assert
+    const result = await studentService.findStudent(1);
     expect(result).toEqual(student);
-    expect(mockRepo.findStudentById).toHaveBeenCalledWith(2);
+    expect(mockRepo.findStudentById).toHaveBeenCalledWith(1);
   });
   it('deleteStudent converts id to a number and returns the deleted student', async () => {
-    // Arrange
-    const student = {id: 2, name: 'John'};
+    const student = {
+      id: 2,
+      name: 'John',
+      password: 'secret'
+    };
     mockRepo.deleteStudent.mockResolvedValue(student);
-    // Act
-    const result = await studentService.deleteStudent('2');
-    // Assert
+    const result = await studentService.deleteStudent(3);
     expect(result).toEqual(student);
-    expect(mockRepo.deleteStudent).toHaveBeenCalledWith(2);
+    expect(mockRepo.deleteStudent).toHaveBeenCalledWith(3);
   });
-  it('updateStudent converts id to a number and passes the updated student data', async () => {
-    // Arrange
-    const data = {name: 'Ann'};
-    const student = {_id: 2, name: 'Ann'};
-    mockRepo.updateStudent.mockResolvedValue(student);
-    // Act
-    const result = await studentService.updateStudent('2', data);
-    // Assert
-    expect(result).toEqual(student);
-    expect(mockRepo.updateStudent).toHaveBeenCalledWith(2, data);
+  it('updateStudent return update student without scores', async () => {
+    const toObject = jest.fn().mockReturnValue({
+      id: 3,
+      name: 'John',
+      password: 'secret'
+    });
+    mockRepo.updateStudent.mockResolvedValue({toObject});
+    const result = await studentService.updateStudent(3, {name: 'John'});
+    expect(result).toEqual({
+      id: 3,
+      name: 'John',
+      password: 'secret'
+    });
+    expect(toObject).toHaveBeenCalled();
+    });
+  it('updateStudent return undefined when student does not exists', async () => {
+    mockRepo.updateStudent.mockResolvedValue(null);
+    const result = await studentService.updateStudent(3, {name: 'John'});
+    expect(result).toBeUndefined();
   });
-  it('addScore updates the student score', async () => {
-    // Arrange
-    const student = {_id: 2, scores: {math: 90}};
-    mockRepo.updateStudent.mockResolvedValue(student);
-    // Act
-    const result = await studentService.addScore('2', 'math', 90);
-    // Assert
-    expect(result).toEqual(student);
-    expect(mockRepo.updateStudent).toHaveBeenCalledWith(2, {'scores.math': 90});
+  it('addScore delegates to repository', async () => {
+    const update = {id:1}
+    mockRepo.updateStudent.mockResolvedValue(update);
+    const result = await studentService.addScore(1, 'Math', 95);
+    expect(result).toEqual(update);
+    expect(mockRepo.updateStudent).toHaveBeenCalledWith(1, {'scores.Math': 95});
   });
-  it('findStudentsByName passes the name to the repository', async () => {
-    // Arrange
-    const student = [{_id: 2, name: 'John'}];
-    mockRepo.findStudentsByName.mockResolvedValue(student);
-    // Act
-    const result = await studentService.findStudentsByName('John');
-    // Assert
-    expect(result).toEqual(student);
-    expect(mockRepo.findStudentsByName).toHaveBeenCalledWith('John');
+  it('findStudentsByName delegates to repository', async () => {
+    const list = [{id: 1, name: 'Eva'}];
+    mockRepo.findStudentsByName.mockResolvedValue(list);
+    const result = await studentService.findStudentsByName('Eva');
+    expect(result).toEqual(list);
+    expect(mockRepo.findStudentsByName).toHaveBeenCalledWith('Eva');
   });
-  it('countStudentsByNames passes an array of names to the repository', async () => {
-    // Arrange
+  it('countStudentsByNames delegate to repository', async () => {
     mockRepo.countStudentsByNames.mockResolvedValue(2);
-    // Act
     const result = await studentService.countStudentsByNames(['John', 'Mary']);
     // Assert
     expect(result).toBe(2);
     expect(mockRepo.countStudentsByNames).toHaveBeenCalledWith(['John', 'Mary']);
   });
-  it('countStudentsByNames wraps a single name in an array', async () => {
-    // Arrange
+  it('countStudentsByNames delegate to repository', async () => {
     mockRepo.countStudentsByNames.mockResolvedValue(1);
-    // Act
     const result = await studentService.countStudentsByNames('John');
-    // Assert
     expect(result).toBe(1);
     expect(mockRepo.countStudentsByNames).toHaveBeenCalledWith(['John']);
   });
-  it('findStudentsByMinScore converts minScore to a number', async () => {
-    // Arrange
-    const students = [{_id: 1, name: 'John'}];
-    mockRepo.findStudentsByMinScore.mockResolvedValue(students);
-    // Act
-    const result = await studentService.findStudentsByMinScore('math', '80');
-    // Assert
-    expect(result).toEqual(students);
-    expect(mockRepo.findStudentsByMinScore).toHaveBeenCalledWith('math', 80);
+  it('findStudentsByMinScore delegate to repository', async () => {
+    const list = [{id: 1, scores: {Math: 90}}];
+    mockRepo.findStudentsByMinScore.mockResolvedValue(list);
+    const result = await studentService.findStudentsByMinScore('Math', '80');
+    expect(result).toEqual(list);
+    expect(mockRepo.findStudentsByMinScore).toHaveBeenCalledWith('Math', 80);
   });
 });
